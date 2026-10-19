@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cluecraft"
+version = "0.1.0"
+description = "Construct printable nonograms and check clue uniqueness with bounded search."
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{name = "Sameer Deolalikar"}]
+
+[project.scripts]
+cluecraft = "cluecraft.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["cluecraft*"]
