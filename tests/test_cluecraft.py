@@ -67,6 +67,28 @@ class PuzzleTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 validate(puzzle)
 
+    def test_art_rejects_surrounding_spaces_and_tabs(self):
+        for art in (" #", "# ", "\t#", "#\t", "\n #\n", "\n# \n"):
+            with self.subTest(art=art), self.assertRaises(ValueError):
+                parse_art(art)
+        for art in ("#\n", "\n#\n", "#\r\n", "\r\n#\r\n"):
+            with self.subTest(art=art):
+                self.assertEqual(parse_art(art), [[1]])
+
+    def test_cli_rejects_art_with_surrounding_whitespace(self):
+        with tempfile.TemporaryDirectory() as directory:
+            art = Path(directory) / "art.txt"
+            output = Path(directory) / "output"
+            art.write_text(" #\n", encoding="utf-8")
+            for command in ("build", "render"):
+                with self.subTest(command=command):
+                    stderr = io.StringIO()
+                    with contextlib.redirect_stderr(stderr), self.assertRaises(SystemExit) as error:
+                        main([command, str(art), "-o", str(output)])
+                    self.assertEqual(error.exception.code, 2)
+                    self.assertIn("using only #", stderr.getvalue())
+                    self.assertFalse(output.exists())
+
     def test_blank_puzzle_svg_does_not_reveal_solution(self):
         grid = parse_art("###\n###")
         ns = {"s": "http://www.w3.org/2000/svg"}

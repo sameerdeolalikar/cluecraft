@@ -33,7 +33,8 @@ virtual environment. This installs this checkout, not a published PyPI release.
 ## Draw your own design
 
 Create a rectangular text file using only `#` for filled cells and `.` for empty
-cells. Designs can have 1–25 rows and columns. For example:
+cells. Spaces and tabs, including at the edges, are invalid. Leading and trailing
+line endings are ignored. Designs can have 1–25 rows and columns. For example:
 
 ```text
 ..#..
@@ -89,7 +90,7 @@ rejected before solving.
 python3 -m unittest discover -s tests -v
 ```
 
-The initial suite has 10 tests, including exhaustive cross-checks against all
+The suite includes exhaustive cross-checks against all
 2 × 3 binary grids and all binary lines up to length 7. It checks uniqueness,
 ambiguity, impossible puzzles, budget exhaustion, and answer-key separation.
 Tests ran on Python 3.14; GitHub Actions and other-version verification are pending.
