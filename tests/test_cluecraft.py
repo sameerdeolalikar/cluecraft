@@ -97,6 +97,29 @@ class PuzzleTests(unittest.TestCase):
         self.assertEqual(len(blank.findall("s:rect[@fill='#21333d']", ns)), 0)
         self.assertEqual(len(answer.findall("s:rect[@fill='#21333d']", ns)), 6)
 
+    def test_art_rejects_nonstandard_line_separators(self):
+        for separator in ("\v", "\f", "\x1c", "\x1d", "\x1e", "\x85", "\u2028", "\u2029"):
+            for art in ("#" + separator + "#", "#" + separator):
+                with self.subTest(art=art), self.assertRaises(ValueError):
+                    parse_art(art)
+        for separator in ("\n", "\r\n", "\r"):
+            with self.subTest(separator=separator):
+                self.assertEqual(parse_art(separator + "#" + separator + "." + separator), [[1], [0]])
+
+    def test_cli_rejects_nonstandard_line_separators(self):
+        with tempfile.TemporaryDirectory() as directory:
+            art, output = Path(directory) / "art.txt", Path(directory) / "output"
+            for separator in ("\v", "\u2028"):
+                art.write_text("#" + separator + "#", encoding="utf-8")
+                for command in ("build", "render"):
+                    with self.subTest(separator=separator, command=command):
+                        stderr = io.StringIO()
+                        with contextlib.redirect_stderr(stderr), self.assertRaises(SystemExit) as error:
+                            main([command, str(art), "-o", str(output)])
+                        self.assertEqual(error.exception.code, 2)
+                        self.assertIn("using only #", stderr.getvalue())
+                        self.assertFalse(output.exists())
+
     def test_cli_build_analyze_and_output_protection(self):
         with tempfile.TemporaryDirectory() as directory:
             art, output = Path(directory) / "art.txt", Path(directory) / "clues.json"

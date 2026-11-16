@@ -8,7 +8,7 @@ def runs(line):
 
 
 def parse_art(text):
-    lines = text.strip("\r\n").splitlines()
+    lines = text.strip("\r\n").replace("\r\n", "\n").replace("\r", "\n").split("\n")
     if not lines or not 1 <= len(lines) <= 25 or not 1 <= len(lines[0]) <= 25:
         raise ValueError("art must be 1–25 rows and 1–25 columns")
     if any(len(line) != len(lines[0]) or any(c not in ".#" for c in line) for line in lines):

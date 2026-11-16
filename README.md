@@ -34,7 +34,8 @@ virtual environment. This installs this checkout, not a published PyPI release.
 
 Create a rectangular text file using only `#` for filled cells and `.` for empty
 cells. Spaces and tabs, including at the edges, are invalid. Leading and trailing
-line endings are ignored. Designs can have 1–25 rows and columns. For example:
+line endings (LF, CRLF, or CR) are ignored. Other control characters and Unicode
+line separators are invalid. Designs can have 1–25 rows and columns. For example:
 
 ```text
 ..#..
