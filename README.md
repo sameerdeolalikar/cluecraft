@@ -83,7 +83,8 @@ Existing output files are protected unless `--force` is specified.
 This two-by-two example has two solutions. The versioned format contains only
 clue lists, not names, accounts, or personal information. Inputs are limited to
 100 KB. Invalid clue lengths, values, and inconsistent filled-cell totals are
-rejected before solving.
+rejected before solving. Duplicate JSON field names are also rejected rather
+than silently using the last value.
 
 ## Development
 

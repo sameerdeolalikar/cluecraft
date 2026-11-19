@@ -120,6 +120,26 @@ class PuzzleTests(unittest.TestCase):
                         self.assertIn("using only #", stderr.getvalue())
                         self.assertFalse(output.exists())
 
+    def test_cli_rejects_duplicate_json_fields(self):
+        documents = (
+            ('{"version": 2, "version": 1, "rows": [[1]], "columns": [[1]]}', "version"),
+            ('{"version": 1, "rows": [[]], "rows": [[1]], "columns": [[1]]}', "rows"),
+            ('{"version": 1, "rows": [[1]], "columns": [[]], "columns": [[1]]}', "columns"),
+            ('{"version": 1, "rows": [[1]], "columns": [[1]], "extra": {"x": 0, "x": 1}}', "x"),
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            puzzle = Path(directory) / "clues.json"
+            for source, field in documents:
+                with self.subTest(source=source):
+                    puzzle.write_text(source, encoding="utf-8")
+                    stdout, stderr = io.StringIO(), io.StringIO()
+                    with contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(stderr):
+                        with self.assertRaises(SystemExit) as error:
+                            main(["analyze", str(puzzle)])
+                    self.assertEqual(error.exception.code, 2)
+                    self.assertIn(f"duplicate JSON field: {field}", stderr.getvalue())
+                    self.assertEqual(stdout.getvalue(), "")
+
     def test_cli_build_analyze_and_output_protection(self):
         with tempfile.TemporaryDirectory() as directory:
             art, output = Path(directory) / "art.txt", Path(directory) / "clues.json"

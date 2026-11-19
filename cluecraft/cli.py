@@ -6,6 +6,15 @@ from .puzzle import analyze, clues, parse_art
 from .svg import render
 
 
+def unique_fields(pairs):
+    document = {}
+    for key, value in pairs:
+        if key in document:
+            raise ValueError(f"duplicate JSON field: {key}")
+        document[key] = value
+    return document
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description="Turn ASCII pixel art into nonogram clues and printable puzzles.")
     commands = parser.add_subparsers(dest="command", required=True)
@@ -25,7 +34,7 @@ def main(argv=None):
             raise ValueError("input exceeds 100 KB")
         source = args.input.read_text(encoding="utf-8")
         if args.command == "analyze":
-            result = analyze(json.loads(source), args.max_nodes)
+            result = analyze(json.loads(source, object_pairs_hook=unique_fields), args.max_nodes)
             print(json.dumps(asdict(result), indent=2))
             return 0
         grid = parse_art(source)
