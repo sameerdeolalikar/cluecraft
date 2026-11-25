@@ -140,6 +140,24 @@ class PuzzleTests(unittest.TestCase):
                     self.assertIn(f"duplicate JSON field: {field}", stderr.getvalue())
                     self.assertEqual(stdout.getvalue(), "")
 
+    def test_cli_rejects_nonfinite_json_constants(self):
+        with tempfile.TemporaryDirectory() as directory:
+            puzzle = Path(directory) / "clues.json"
+            for constant in ("NaN", "Infinity", "-Infinity"):
+                for value in (constant, "[" + constant + "]"):
+                    with self.subTest(value=value):
+                        puzzle.write_text(
+                            '{"version": 1, "rows": [[1]], "columns": [[1]], "extra": '
+                            + value + "}", encoding="utf-8"
+                        )
+                        stdout, stderr = io.StringIO(), io.StringIO()
+                        with contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(stderr):
+                            with self.assertRaises(SystemExit) as error:
+                                main(["analyze", str(puzzle)])
+                        self.assertEqual(error.exception.code, 2)
+                        self.assertIn(f"invalid JSON constant: {constant}", stderr.getvalue())
+                        self.assertEqual(stdout.getvalue(), "")
+
     def test_cli_build_analyze_and_output_protection(self):
         with tempfile.TemporaryDirectory() as directory:
             art, output = Path(directory) / "art.txt", Path(directory) / "clues.json"

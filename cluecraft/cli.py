@@ -15,6 +15,10 @@ def unique_fields(pairs):
     return document
 
 
+def reject_constant(value):
+    raise ValueError(f"invalid JSON constant: {value}")
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description="Turn ASCII pixel art into nonogram clues and printable puzzles.")
     commands = parser.add_subparsers(dest="command", required=True)
@@ -34,7 +38,8 @@ def main(argv=None):
             raise ValueError("input exceeds 100 KB")
         source = args.input.read_text(encoding="utf-8")
         if args.command == "analyze":
-            result = analyze(json.loads(source, object_pairs_hook=unique_fields), args.max_nodes)
+            result = analyze(json.loads(source, object_pairs_hook=unique_fields,
+                                        parse_constant=reject_constant), args.max_nodes)
             print(json.dumps(asdict(result), indent=2))
             return 0
         grid = parse_art(source)

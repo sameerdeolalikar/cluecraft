@@ -84,7 +84,8 @@ This two-by-two example has two solutions. The versioned format contains only
 clue lists, not names, accounts, or personal information. Inputs are limited to
 100 KB. Invalid clue lengths, values, and inconsistent filled-cell totals are
 rejected before solving. Duplicate JSON field names are also rejected rather
-than silently using the last value.
+than silently using the last value. Nonstandard numeric constants (`NaN`,
+`Infinity`, and `-Infinity`) are rejected, including in extra fields.
 
 ## Development
 
